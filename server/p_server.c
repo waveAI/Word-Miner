@@ -128,7 +128,7 @@ void *MatrixGen(void *args)
         pthread_mutex_unlock(&wordst);
         
         generate_matrix();
-        printf("greetings from the lanisters!\n");
+        //printf("greetings from the lanisters!\n");
 
         for(int i = 0 ; i<30 ; i++)
             lboard[i] = msg.scoreboard[i];
