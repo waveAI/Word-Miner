@@ -24,9 +24,11 @@ OBJS=main.o
  
 all: $(OBJS)
 	$(LD) -o $(TARGET) $(OBJS) $(LDFLAGS)
+	gcc server/p_server.c -pthread -o ser
 
 main.o: client/p_client.c
 	$(CC) -c $(CCFLAGS) client/p_client.c $(GTKLIB) -o main.o
     
 clean:
 	rm -f *.o $(TARGET)
+	rm -f ser
