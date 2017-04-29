@@ -260,7 +260,6 @@ void *MatrixSend(void* args)
 {
     int j = (int)args;
     int clientfd = client_matrix[j].cfd;
-    int kl;
 
     while(1)
     {
@@ -268,18 +267,9 @@ void *MatrixSend(void* args)
         pthread_mutex_unlock(&matrix);
         // findWords(f,lmatrix);
 
-        if(((recv(clientfd,&kl,sizeof(kl),MSG_DONTWAIT)))==0)
-        {
-            printf("matrix connection gone bad\n");
-            
-            pthread_mutex_lock(&client_matrixt);
-                client_matrix[j].score = -1;
-            pthread_mutex_unlock(&client_matrixt);
-            
-            break;
-        }
 
-        if(send(clientfd,lmatrix,25,MSG_DONTWAIT)==-1)
+
+        if(send(clientfd,lmatrix,25,MSG_WAITALL)==-1)
         {
             printf("matrix connection gone bad\n");
 
@@ -341,7 +331,7 @@ void *matrixThread(void* args)
                 }                 
                 
                 pthread_create(&t[k],NULL,MatrixSend,(void *)k);
-                printf("smat new -0---- %d\n",k);
+            
         }
         close(serverfd);
     }
@@ -357,37 +347,25 @@ void *scoreSend(void* args)
 {
     int j = (int)args;
     int clientfd = client_score[j].cfd;
-    int h = 0 , kl;
 
     while(1)
     {
         // findWords(f,lmatrix);
-        if(((recv(clientfd,&kl,sizeof(kl),MSG_DONTWAIT)))==0)
+        if(send(clientfd,&msg,sizeof(msg),MSG_WAITALL)==-1)
         {
             printf("score connection gone bad\n");
-            
-            pthread_mutex_lock(&client_scoret);
-            client_score[j].score = -1;
-            pthread_mutex_unlock(&client_scoret);
-            
-            break;
-        }
-        
-        if((h=send(clientfd,&msg,sizeof(msg),MSG_DONTWAIT))!=sizeof(msg))
-        {
-            printf("score connection gone bad\n");
-            
+
             pthread_mutex_lock(&client_scoret);
             client_score[j].score = -1;
             pthread_mutex_unlock(&client_scoret);
 
             break;
         }
+
         sleep(1);
-        
+
     }
-    // h=send(clientfd,&msg,sizeof(msg),MSG_WAITALL);
-    // printf("ddas %d %d\n",h,sizeof(msg));
+
     close(clientfd);
 
     pthread_exit(0);
@@ -437,7 +415,7 @@ void *scoreThread(void* args)
                 }                
                 
                 pthread_create(&t[k],NULL,scoreSend,(void *)k);
-                printf("so=core new -0---- %d\n",k);
+            
         }
         close(serverfd);
     }
@@ -533,7 +511,6 @@ int main()
                 pthread_create(&t[k],NULL,ClientThread,(void *)k);
             
         }
-
         close(serverfd);
     }
     else
