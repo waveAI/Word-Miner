@@ -19,6 +19,10 @@ int PORT;
 
 NODE* f ;
 
+int client_fd;
+int score_fd;
+int matrix_fd;
+
 GtkWidget *g_entry1;
 GtkWidget *g_displayLabel;
 GtkWidget *g_displayButton;
@@ -55,6 +59,7 @@ void *matrixThread(void* args)
 {
     struct sockaddr_in sock_var;
     int clientFileDiscriptor=socket(AF_INET,SOCK_STREAM,0);
+    matrix_fd = clientFileDiscriptor;
     char str_clnt[20],str_ser[20];
     
     int sen , rec , scn;
@@ -121,6 +126,7 @@ void *scoreThread(void* args)
 {
     struct sockaddr_in sock_var;
     int clientFileDiscriptor=socket(AF_INET,SOCK_STREAM,0);
+    score_fd = clientFileDiscriptor;
 
     int sen , rec = 1 , scn;
 
@@ -142,9 +148,14 @@ void *scoreThread(void* args)
             {
                 gtk_label_set_text(GTK_LABEL(g_label2),"Server Error");
                 sleep(5);
+                
+                close(client_fd);
+                close(score_fd);    
+                close(matrix_fd);
+                
                 gtk_main_quit();
             }
-            if((rec=recv(clientFileDiscriptor,&msg,sizeof(msg),MSG_WAITALL))>0)
+            if((rec=recv(clientFileDiscriptor,&msg,sizeof(msg),MSG_DONTWAIT))>0)
             {
                 gtk_label_set_text(GTK_LABEL(g_words),msg.words);
                 qsort(msg.scoreboard,30,sizeof(SCORE),compare);
@@ -218,7 +229,7 @@ void *scoreThread(void* args)
     }
     else
     {
-        printf("matrix socket creation failed\n");
+        printf("score socket creation failed\n");
     }  
 
     pthread_exit(0);
@@ -301,6 +312,11 @@ void on_button1_clicked()
 
 void on_game_window_destroy()
 {
+    // printf("%d %d yo\n",client_fd,score_fd);
+    close(client_fd);
+    close(score_fd);
+    close(matrix_fd);
+    // printf("mama %d\n",g);
     gtk_main_quit();
 }
 
@@ -368,6 +384,8 @@ int main(int *argc,char* argv[])
     struct sockaddr_in sock_var;
     int clientFileDiscriptor=socket(AF_INET,SOCK_STREAM,0);
     cfd = clientFileDiscriptor;
+    client_fd = clientFileDiscriptor;
+
     char str_clnt[20],str_ser[20];
     
     int sen , rec , scn;
