@@ -260,13 +260,22 @@ void *MatrixSend(void* args)
 {
     int j = (int)args;
     int clientfd = client_matrix[j].cfd;
-
+    int kl = 1;
     while(1)
     {
         pthread_mutex_lock(&matrix);
         pthread_mutex_unlock(&matrix);
         // findWords(f,lmatrix);
-
+        if(((recv(clientfd,&kl,sizeof(kl),MSG_DONTWAIT)))==0)
+        {
+            printf("matrix connection gone bad\n");
+            
+            pthread_mutex_lock(&client_matrixt);
+                client_matrix[j].score = -1;
+            pthread_mutex_unlock(&client_matrixt);
+            
+            break;
+        }
 
 
         if(send(clientfd,lmatrix,25,MSG_WAITALL)==-1)
@@ -347,10 +356,22 @@ void *scoreSend(void* args)
 {
     int j = (int)args;
     int clientfd = client_score[j].cfd;
+    int kl = 1;
 
     while(1)
     {
         // findWords(f,lmatrix);
+        if(((recv(clientfd,&kl,sizeof(kl),MSG_DONTWAIT)))==0)
+        {
+            printf("score connection gone bad\n");
+            
+            pthread_mutex_lock(&client_scoret);
+            client_score[j].score = -1;
+            pthread_mutex_unlock(&client_scoret);
+            
+            break;
+        }     
+
         if(send(clientfd,&msg,sizeof(msg),MSG_WAITALL)==-1)
         {
             printf("score connection gone bad\n");
