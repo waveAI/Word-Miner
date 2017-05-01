@@ -3,14 +3,13 @@ Instructions to play Word Miner
 PreRequirements   -   GTK+3  
 
 
+compile :- make all
 
-p_server.c  (Server - Hosts the game)
+(Server - Hosts the game)
 
 
-go to server folder and open in terminal
 
-   compile -  gcc p_server.c -pthread -o ser
-   run     -  ./ser
+	run     -  ./ser
 
 	Enter IP and PORT to be used.
 
@@ -18,13 +17,14 @@ go to server folder and open in terminal
 
 client  (Client   -  Connects to server to play the game)
 
-open termnal in word miner
 
-	make command -  make clean
-		     -  make
-	
 	run          -  ./template_app
 
 	Enter Server IP and PORT
+
+
+remove executables :- make clean
+
+	
 
 Enjoy the game!!!
